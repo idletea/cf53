@@ -1,0 +1,7 @@
+[tools]
+python = "3.13"  # cloudflare sdk can't use 3.14+
+uv = "0.9"
+just = "1"
+
+[env]
+_.python.venv = { create = true, path = ".venv" }

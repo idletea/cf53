@@ -1,0 +1,30 @@
+[project]
+name = "cf53"
+version = "0.1.0"
+description = "Cloudflare DNS client for humans"
+readme = "readme.md"
+requires-python = ">=3.13"
+dependencies = [
+    "click>=8.3.1",
+    "cloudflare>=4.3.1",
+    "rich>=14.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyrefly>=0.45.2",
+    "pytest>=9.0.2",
+    "ruff>=0.14.9",
+]
+
+[tool.ruff]
+line-length = 88
+src = ["cf53"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "T20", "RUF"]
+ignore = []
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+force-to-top = ["from __future__ import annotations"]
