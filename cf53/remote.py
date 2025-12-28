@@ -8,7 +8,7 @@ from .record import Record, RecordType
 
 
 async def load_remote_zones(
-    client: AsyncCloudflare, domains: set[str]
+    client: AsyncCloudflare, domains: set[str], ignore_comment: str = ""
 ) -> dict[tuple[str, str], set[Record]]:
     """Map of (domain, zone_id) to records in cloudflare"""
     domain_to_zone_id = {
@@ -20,7 +20,9 @@ async def load_remote_zones(
     tasks = []
     async with asyncio.TaskGroup() as tg:
         for domain, zone_id in domain_to_zone_id.items():
-            task = tg.create_task(_load_remote_zone(client, domain, zone_id))
+            task = tg.create_task(
+                _load_remote_zone(client, domain, zone_id, ignore_comment)
+            )
             tasks.append(task)
 
     remote_zones: dict[tuple[str, str], set[Record]] = {}
@@ -32,7 +34,7 @@ async def load_remote_zones(
 
 
 async def _load_remote_zone(
-    client, domain: str, zone_id: str
+    client, domain: str, zone_id: str, ignore_comment: str = ""
 ) -> tuple[str, set[Record]]:
     records_page = await client.dns.records.list(zone_id=zone_id)
     return (
@@ -49,6 +51,7 @@ async def _load_remote_zone(
                 cloudflare_id=record.id,
             )
             for record in _unpage(records_page)
+            if (not record.comment) or (record.comment != ignore_comment)
         },
     )
 

@@ -27,7 +27,17 @@ from .remote import load_remote_zones
     "default_comment",
     help="Comment to append to any record not explicitly commented",
 )
-def main(zones_dir: str, domains: tuple[str, ...], default_comment: str = "") -> None:
+@click.option(
+    "--ignore-comment",
+    "ignore_comment",
+    help="Ignore any remote records with this exact comment",
+)
+def main(
+    zones_dir: str,
+    domains: tuple[str, ...],
+    default_comment: str = "",
+    ignore_comment: str = "",
+) -> None:
     zones_dir_path = Path(zones_dir)
     client = _client()
 
@@ -38,7 +48,11 @@ def main(zones_dir: str, domains: tuple[str, ...], default_comment: str = "") ->
             only_domains=domains,
         )
         remote_zones = asyncio.run(
-            load_remote_zones(client=client, domains=set(local_zones.keys()))
+            load_remote_zones(
+                client=client,
+                domains=set(local_zones.keys()),
+                ignore_comment=ignore_comment,
+            )
         )
 
     diffs = [
