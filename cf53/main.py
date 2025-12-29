@@ -10,7 +10,7 @@ from cloudflare import AsyncCloudflare
 from .console import console
 from .diff import Diff
 from .local import load_zones_dir
-from .reconcile import reconcile_diffs
+from .reconcile import _reconcile_diff
 from .remote import load_remote_zones
 
 
@@ -38,21 +38,34 @@ def main(
     default_comment: str = "",
     ignore_comment: str = "",
 ) -> None:
-    zones_dir_path = Path(zones_dir)
+    asyncio.run(
+        _async_main(
+            zones_dir=Path(zones_dir),
+            domains=domains,
+            default_comment=default_comment,
+            ignore_comment=ignore_comment,
+        )
+    )
+
+
+async def _async_main(
+    zones_dir: Path,
+    domains: tuple[str, ...],
+    default_comment: str = "",
+    ignore_comment: str = "",
+) -> None:
     client = _client()
 
     with console.status("fetching zones..."):
         local_zones = load_zones_dir(
-            zones_dir=zones_dir_path,
+            zones_dir=zones_dir,
             default_comment=default_comment,
             only_domains=domains,
         )
-        remote_zones = asyncio.run(
-            load_remote_zones(
-                client=client,
-                domains=set(local_zones.keys()),
-                ignore_comment=ignore_comment,
-            )
+        remote_zones = await load_remote_zones(
+            client=client,
+            domains=set(local_zones.keys()),
+            ignore_comment=ignore_comment,
         )
 
     diffs = [
@@ -68,8 +81,14 @@ def main(
     for diff in diffs:
         diff.print()
 
-    if any(diffs) and _user_confirmation():
-        reconcile_diffs(diffs, client)
+    if any(diffs) and await asyncio.to_thread(_user_confirmation):
+        await _async_reconcile_diffs(diffs, client)
+
+
+async def _async_reconcile_diffs(diffs: list[Diff], client: AsyncCloudflare) -> None:
+    async with asyncio.TaskGroup() as tg:
+        for diff in diffs:
+            tg.create_task(_reconcile_diff(diff, client))
 
 
 def _user_confirmation() -> bool:
