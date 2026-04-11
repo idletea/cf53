@@ -1,6 +1,6 @@
 [tools]
-python = "3.13"  # cloudflare sdk can't use 3.14+
-uv = "0.9"
+python = "3.14"
+uv = "0.10"
 just = "1"
 
 [env]
