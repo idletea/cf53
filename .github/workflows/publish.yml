@@ -14,7 +14,7 @@ jobs:
     - uses: jdx/mise-action@v4
 
     - name: Install
-      run: uv sync --frozen
+      run: just install
 
     - name: Check
       run: just check
@@ -23,7 +23,7 @@ jobs:
       run: just test
 
     - name: Build
-      run: uv build
+      run: just build
 
     - name: Store
       uses: actions/upload-artifact@v7

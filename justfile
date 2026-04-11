@@ -1,3 +1,6 @@
+install:
+    uv sync --frozen
+
 check:
     ruff check
     pyrefly check
@@ -8,3 +11,6 @@ test:
 fmt:
     ruff format
     ruff check --fix
+
+build:
+    uv build
