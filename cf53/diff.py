@@ -105,4 +105,6 @@ class Diff:
 
 
 def _semantic_key(record: Record) -> tuple[RecordType, str, str, int | None]:
+    if record.type == "mx":
+        return (record.type, record.name, record.content)
     return (record.type, record.name, record.content, record.priority)
