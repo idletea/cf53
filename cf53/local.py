@@ -28,9 +28,15 @@ def load_zones_dir(
             Record(
                 type=record_type,
                 name=_normalize_name(record["name"], domain),
-                content=f'"{record["content"]}"'
-                if record_type == "txt"
-                else record["content"],
+                content=(
+                    f'"{record["content"]}"'
+                    if record_type == "txt"
+                    and not (
+                        record["content"].startswith('"')
+                        and record["content"].endswith('"')
+                    )
+                    else record["content"]
+                ),
                 ttl=record.get("ttl", 1),  # 1=auto
                 proxied=record.get("proxied", False),
                 comment=record.get("comment", default_comment),

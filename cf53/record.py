@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum, auto
-from typing import Any
+from typing import Any, Self
 
 
 class RecordType(StrEnum):
@@ -46,3 +46,6 @@ class Record:
                 or other.cloudflare_id is None
             )
         )
+
+    def __replace__(self, **kwargs) -> Self:
+        return replace(self, **kwargs)

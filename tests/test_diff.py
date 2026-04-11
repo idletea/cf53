@@ -1,4 +1,4 @@
-from copy import replace
+from dataclasses import replace
 
 from cf53.diff import Diff
 from cf53.record import Record, RecordType
@@ -80,10 +80,7 @@ def test_trivial_match_in_sync():
         proxied=False,
         comment="test record",
     )
-    with_id = replace(
-        matching_record,  # type: ignore[bad-argument-type]
-        cloudflare_id="foo",
-    )
+    with_id = replace(matching_record, cloudflare_id="foo")
 
     local_records = {matching_record}
     remote_records = {with_id}
@@ -112,11 +109,7 @@ def test_trivial_match_to_update():
         proxied=False,
         comment="test record",
     )
-    remote_record = replace(
-        local_record,  # type: ignore[bad-argument-type]
-        cloudflare_id="foo",
-        comment="something else",
-    )
+    remote_record = replace(local_record, cloudflare_id="foo", comment="something else")
 
     diff = Diff.from_zones(
         domain="example.com",
@@ -144,11 +137,7 @@ def test_mx_priority_change():
         comment="mail server",
         priority=10,
     )
-    remote_record = replace(
-        local_record,
-        cloudflare_id="foo",
-        priority=20,
-    )
+    remote_record = replace(local_record, cloudflare_id="foo", priority=20)
 
     diff = Diff.from_zones(
         domain="example.com",
@@ -172,11 +161,7 @@ def test_ttl_change():
         proxied=False,
         comment="test",
     )
-    remote_record = replace(
-        local_record,
-        cloudflare_id="foo",
-        ttl=1800,
-    )
+    remote_record = replace(local_record, cloudflare_id="foo", ttl=1800)
 
     diff = Diff.from_zones(
         domain="example.com",
@@ -200,11 +185,7 @@ def test_proxied_toggle():
         proxied=True,
         comment="test",
     )
-    remote_record = replace(
-        local_record,
-        cloudflare_id="foo",
-        proxied=False,
-    )
+    remote_record = replace(local_record, cloudflare_id="foo", proxied=False)
 
     diff = Diff.from_zones(
         domain="example.com",
@@ -228,11 +209,7 @@ def test_comment_change():
         proxied=False,
         comment="new comment",
     )
-    remote_record = replace(
-        local_record,
-        cloudflare_id="foo",
-        comment="old comment",
-    )
+    remote_record = replace(local_record, cloudflare_id="foo", comment="old comment")
 
     diff = Diff.from_zones(
         domain="example.com",
