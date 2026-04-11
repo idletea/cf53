@@ -217,3 +217,63 @@ def test_domain_seletion(build_zones_dir):
         only_domains={"example.net"},
     )
     assert zones == {"example.net": many_records_expected}
+
+
+def test_root_domain_normalization(build_zones_dir):
+    content = """
+    [[a]]
+    name = "@"
+    content = "1.2.3.4"
+    """
+    zones_dir = build_zones_dir({"example.com.toml": content})
+    zones = load_zones_dir(zones_dir=zones_dir)
+    record = next(iter(zones["example.com"]))
+    assert record.name == "example.com"
+
+
+def test_subdomain_normalization(build_zones_dir):
+    content = """
+    [[a]]
+    name = "www"
+    content = "1.2.3.4"
+    """
+    zones_dir = build_zones_dir({"example.com.toml": content})
+    zones = load_zones_dir(zones_dir=zones_dir)
+    record = next(iter(zones["example.com"]))
+    assert record.name == "www.example.com"
+
+
+def test_fully_qualified_name(build_zones_dir):
+    content = """
+    [[a]]
+    name = "www.example.com"
+    content = "1.2.3.4"
+    """
+    zones_dir = build_zones_dir({"example.com.toml": content})
+    zones = load_zones_dir(zones_dir=zones_dir)
+    record = next(iter(zones["example.com"]))
+    assert record.name == "www.example.com"
+
+
+def test_txt_auto_quoting(build_zones_dir):
+    content = """
+    [[txt]]
+    name = "example.com"
+    content = "v=spf1 include:_spf.google.com ~all"
+    """
+    zones_dir = build_zones_dir({"example.com.toml": content})
+    zones = load_zones_dir(zones_dir=zones_dir)
+    record = next(iter(zones["example.com"]))
+    assert record.content == '"v=spf1 include:_spf.google.com ~all"'
+
+
+def test_txt_preserve_quotes(build_zones_dir):
+    content = """
+    [[txt]]
+    name = "example.com"
+    content = '"already quoted"'
+    """
+    zones_dir = build_zones_dir({"example.com.toml": content})
+    zones = load_zones_dir(zones_dir=zones_dir)
+    record = next(iter(zones["example.com"]))
+    assert record.content == '"already quoted"'
